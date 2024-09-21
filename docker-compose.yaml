@@ -1,9 +1,10 @@
 version: '3.8'
 services:
   db:
+    container_name: db
     image: postgres:13
     env_file:
-      - .env
+      - ./backend/.env
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
@@ -11,24 +12,22 @@ services:
     networks:
       - app-network
   backend:
+    container_name: backend
     build:
       context: ./backend
     volumes:
-      - ./backend:/app          # 호스트의 backend 폴더를 컨테이너의 /app으로 마운트
-      - /app/node_modules        # node_modules를 호스트와 분리해 캐시 유지
+      - ./backend:/app
     ports:
-      - "4000:4000"
-    command: >
-      /wait-for-it.sh db:5432 -- 
-      npx prisma migrate deploy && 
-      npm run dev  
+      - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       - db
     env_file:
-      - .env
+      - ./backend/.env
+    command: bash -c "/wait-for-it.sh db:5432 -- npx prisma generate && npm run dev"
     networks:
       - app-network
   frontend:
+    container_name: frontend
     build:
       context: ./frontend
     ports:
@@ -40,8 +39,10 @@ services:
     command: npm start
     networks:
       - app-network
+
 volumes:
   postgres-data:
+
 networks:
   app-network:
     driver: bridge

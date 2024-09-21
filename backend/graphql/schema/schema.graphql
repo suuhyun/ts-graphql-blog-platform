@@ -1,52 +1,65 @@
 scalar Date
 
 type Query {
-    users: [User]
-    user(id: ID!): User
-    posts: [Post]
-    post(id: ID!): Post
+    users: [User]!
+    user(id: Int!): User!
+    posts: [Post!]!
+    post(id: Int!): Post!
+    comments: [Comment]!
+    comment(id: Int!): Comment!
 }
 type Mutation {
-    createPost(post: PostInput!): Post
-    updatePost(id: ID!, post: UpdatePostInput!): Post
-    deletePost(id: ID!): Boolean
+    createPost(post: PostInput!): Post!
+    updatePost(id: Int!, post: UpdatePostInput!): Post!
+    deletePost(id: Int!): Boolean!
+    createUser(user: UserInput!): User!
+}
+input UserInput {
+    firstName: String!
+    lastName: String
+    username: String!
+    email: String!
 }
 input PostInput {
-    title: String,
-    content: String,
-    authorId: ID!
+    title: String!
+    content: String!
+    authorId: Int!
 }
 input UpdatePostInput {
     title: String
     content: String
-    updated_at: Date
-    likes: [ID]
+    updatedAt: Date
+    likes: [Int!]
 }
 type User {
-    id: ID!
-    first_name: String
-    last_name: String
-    username: String
-    email: String
-    posts: [Post]
-    comments: [Comment]
-    likedPosts: [Post]
-    likedComments: [Comment]
+    id: Int!
+    firstName: String!
+    lastName: String
+    username: String!
+    email: String!
+    posts: [Post!]!
+    comments: [Comment!]!
+    likedPosts: [Post!]
+    likedComments: [Comment!]
 }
 type Post {
-    id: ID!
-    author: User
-    create_at: Date
-    updated_at: Date
-    title: String
-    content: String
-    likes: [User]
+    id: Int!
+    author: User!
+    authorId: Int!
+    createAt: Date!
+    updatedAt: Date!
+    title: String!
+    content: String!
+    likes: [User!]
 }
 type Comment {
-    id: ID!
-    author: User
-    post: Post
-    body: String
-    created_at: Date
-    likes: [User]
+    id: Int!
+    author: User!
+    authorId: Int!
+    post: Post!
+    postId: Int!
+    body: String!
+    createdAt: Date!
+    updatedAt: Date!
+    likes: [User!]
 }
