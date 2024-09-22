@@ -14,6 +14,7 @@ RUN if [ "$NODE_ENV" = "development" ]; then \
         npm install; \
     fi
 
+COPY ./prisma ./prisma
 COPY . .
 
 # RUN npx prisma generate

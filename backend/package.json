@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-     "dev": "nodemon --exec ts-node server.ts",
+    "dev": "nodemon --exec ts-node server.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },
@@ -27,6 +27,7 @@
     "@graphql-tools/load": "^8.0.2",
     "@prisma/client": "^5.19.1",
     "apollo-server": "^3.13.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "graphql": "^16.9.0",

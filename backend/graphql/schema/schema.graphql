@@ -3,16 +3,27 @@ scalar Date
 type Query {
     users: [User]!
     user(id: Int!): User!
+
     posts: [Post!]!
     post(id: Int!): Post!
+
     comments: [Comment]!
     comment(id: Int!): Comment!
 }
 type Mutation {
-    createPost(post: PostInput!): Post!
+    createPost(userId: Int!, post: PostInput!): Post!
     updatePost(id: Int!, post: UpdatePostInput!): Post!
-    deletePost(id: Int!): Boolean!
+    deletePost(id: Int!): Post!
+
     createUser(user: UserInput!): User!
+    updateUser(id: Int!, user: UpdateUserInput!): User!
+    deleteUser(id: Int!): User!
+    toggleLikePost(userId: Int!, postId: Int!): User!
+    toggleLikeComment(userId: Int!, commentId: Int!): User!
+
+    createComment(postId: Int!, userId: Int!, comment: CommentInput!): Comment!
+    updateComment(id: Int!, comment: UpdateCommentInput!): Comment!
+    deleteComment(id: Int!): Comment!
 }
 input UserInput {
     firstName: String!
@@ -20,16 +31,25 @@ input UserInput {
     username: String!
     email: String!
 }
+input UpdateUserInput {
+    firstName: String
+    lastName: String
+    username: String
+    email: String
+}
 input PostInput {
     title: String!
     content: String!
-    authorId: Int!
 }
 input UpdatePostInput {
     title: String
     content: String
-    updatedAt: Date
-    likes: [Int!]
+}
+input CommentInput {
+    body: String!
+}
+input UpdateCommentInput {
+    body: String
 }
 type User {
     id: Int!
@@ -39,18 +59,19 @@ type User {
     email: String!
     posts: [Post!]!
     comments: [Comment!]!
-    likedPosts: [Post!]
-    likedComments: [Comment!]
+    likedPosts: [Post!]!
+    likedComments: [Comment!]!
 }
 type Post {
     id: Int!
     author: User!
     authorId: Int!
-    createAt: Date!
+    createdAt: Date!
     updatedAt: Date!
     title: String!
     content: String!
     likes: [User!]
+    comments: [Comment!]
 }
 type Comment {
     id: Int!
