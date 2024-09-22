@@ -20,7 +20,7 @@ const startServer = async () => {
 
   app.use(
     '/graphql',
-    cors<cors.CorsRequest>({ origin: ['https://www.your-app.example', 'https://studio.apollographql.com'] }),
+    cors<cors.CorsRequest>({ origin: ['http://localhost:3000', 'https://studio.apollographql.com'] }),
     express.json(),
     expressMiddleware(server),
   );
