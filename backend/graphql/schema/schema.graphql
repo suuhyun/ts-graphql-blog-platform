@@ -21,6 +21,9 @@ type Mutation {
     toggleLikePost(userId: Int!, postId: Int!): User!
     toggleLikeComment(userId: Int!, commentId: Int!): User!
 
+    login(email: String!, password: String!): AuthPayload!
+    refreshToken(refreshToken: String!): AuthPayload!
+
     createComment(postId: Int!, userId: Int!, comment: CommentInput!): Comment!
     updateComment(id: Int!, comment: UpdateCommentInput!): Comment!
     deleteComment(id: Int!): Comment!
@@ -30,6 +33,7 @@ input UserInput {
     lastName: String
     username: String!
     email: String!
+    password: String!
 }
 input UpdateUserInput {
     firstName: String
@@ -50,6 +54,11 @@ input CommentInput {
 }
 input UpdateCommentInput {
     body: String
+}
+type AuthPayload {
+    accessToken: String!
+    refreshToken: String!
+    user: User!
 }
 type User {
     id: Int!

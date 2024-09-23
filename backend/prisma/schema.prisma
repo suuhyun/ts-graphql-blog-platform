@@ -20,6 +20,8 @@ model User {
   lastName      String?
   username      String    @unique
   email         String    @unique
+  password      String
+  refreshToken  String?
   posts         Post[]    @relation("UserPosts")
   comments      Comment[] @relation("UserComments")
   likedPosts    Post[]    @relation("PostLikes")

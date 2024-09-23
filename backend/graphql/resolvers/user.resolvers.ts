@@ -1,9 +1,11 @@
 import { PostService } from "../../services/post.service";
-import { UserService } from "../../services/user.service";
+import { UserService } from "../../services/user/user.service";
+import { AuthService } from "../../services/user/auth.service";
 import { CommentService } from "../../services/comment.service";
 import { User, UserInput } from "../../generated/graphql";
 
 const userService = UserService.getInstance();
+const authService = new AuthService();
 const postService = PostService.getInstance();
 const commentService = CommentService.getInstance();
 
@@ -14,7 +16,9 @@ export const userResolvers = {
   },
   Mutation: {
     createUser: async (parent: any, args: { user: UserInput }) =>
-      userService.createUser(args.user),
+      authService.createUser(args.user),
+    login: async (parent: any, args: { email: string; password: string }) =>
+      authService.login(args.email, args.password),
     updateUser: async (parent: any, args: { id: number; user: UserInput }) =>
       userService.updateUser(args.id, args.user),
     deleteUser: async (parent: any, args: { id: number }) =>

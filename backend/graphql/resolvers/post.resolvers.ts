@@ -1,7 +1,7 @@
 import { Post, PostInput, UpdatePostInput } from "../../generated/graphql";
 import { CommentService } from "../../services/comment.service";
 import { PostService } from "../../services/post.service";
-import { UserService } from "../../services/user.service";
+import { UserService } from "../../services/user/user.service";
 
 const postService = PostService.getInstance();
 const userService = UserService.getInstance();

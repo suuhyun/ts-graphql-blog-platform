@@ -1,5 +1,5 @@
 import { CommentService } from "../../services/comment.service";
-import { UserService } from "../../services/user.service";
+import { UserService } from "../../services/user/user.service";
 import { PostService } from "../../services/post.service";
 import {
   Comment,

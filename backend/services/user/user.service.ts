@@ -1,5 +1,13 @@
-import { UserInput, User, UpdateUserInput } from "../generated/graphql";
-import prisma from "../models/prisma";
+import {
+  UserInput,
+  User,
+  UpdateUserInput,
+  AuthPayload,
+} from "../../generated/graphql";
+import prisma from "../../models/prisma";
+import { handlePrismaError } from "../../errors/prismaErrorHandler";
+import { handleAuthError } from "../../errors/authErrorHandler";
+import { comparePasswords, createTokens } from "../../auth/auth";
 
 export class UserService {
   private static instance: UserService;
@@ -16,7 +24,7 @@ export class UserService {
 
   async getAllUsers() {
     try {
-      const users = await prisma.user.findMany();
+      const users = await prisma.user.findMany({});
       return users;
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -78,25 +86,6 @@ export class UserService {
     }
   }
 
-  async createUser(user: UserInput) {
-    try {
-      const newUser = {
-        ...user,
-        likedComments: { create: [] },
-        comments: { create: [] },
-        posts: { create: [] },
-        likedPosts: { create: [] },
-      };
-      const createdUser = await prisma.user.create({
-        data: newUser,
-      });
-      return createdUser;
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw new Error("Could not create user");
-    }
-  }
-
   async updateUser(userId: number, user: UpdateUserInput) {
     try {
       const updatedUser = await prisma.user.update({
@@ -130,7 +119,7 @@ export class UserService {
 
   async toggleLike(
     userId: number,
-    relationField: 'likedPosts' | 'likedComments',
+    relationField: "likedPosts" | "likedComments",
     entityId: number
   ) {
     try {
@@ -142,9 +131,9 @@ export class UserService {
           },
         },
       });
-  
+
       const alreadyLiked = user && user[relationField].length > 0;
-  
+
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
@@ -153,19 +142,19 @@ export class UserService {
             : { connect: { id: entityId } },
         },
       });
-  
+
       return updatedUser;
     } catch (error) {
       console.error(`Error toggling like on ${relationField}:`, error);
       throw new Error(`Could not toggle like on ${relationField}`);
     }
   }
-  
+
   async toggleLikePost(userId: number, postId: number) {
-    return this.toggleLike(userId, 'likedPosts', postId);
+    return this.toggleLike(userId, "likedPosts", postId);
   }
 
   async toggleLikeComment(userId: number, commentId: number) {
-    return this.toggleLike(userId, 'likedComments', commentId);
+    return this.toggleLike(userId, "likedComments", commentId);
   }
 }
