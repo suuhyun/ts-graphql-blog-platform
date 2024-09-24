@@ -1,13 +1,7 @@
 import {
-  UserInput,
-  User,
   UpdateUserInput,
-  AuthPayload,
 } from "../../generated/graphql";
 import prisma from "../../models/prisma";
-import { handlePrismaError } from "../../errors/prismaErrorHandler";
-import { handleAuthError } from "../../errors/authErrorHandler";
-import { comparePasswords, createTokens } from "../../auth/auth";
 
 export class UserService {
   private static instance: UserService;

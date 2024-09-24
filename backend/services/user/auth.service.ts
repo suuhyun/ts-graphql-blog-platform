@@ -1,12 +1,31 @@
 import prisma from "../../models/prisma";
 import { handlePrismaError } from "../../errors/prismaErrorHandler";
 import { handleAuthError } from "../../errors/authErrorHandler";
-import { comparePasswords, createTokens } from "../../auth/auth";
+import {
+  comparePasswords,
+  createTokens,
+  hashPassword,
+  verifyAccessToken,
+  verifyRefreshToken,
+} from "../../auth/auth";
 import { UserInput, AuthPayload } from "../../generated/graphql";
+import { access } from "fs";
 
 export class AuthService {
-  async createUser(user: UserInput): Promise<AuthPayload> {
+  async logout(id: number) {
     try {
+      await prisma.user.update({
+        where: { id },
+        data: { refreshToken: null },
+      });
+    } catch (error) {
+      throw handlePrismaError(error);
+    }
+  }
+  async createUser(user: UserInput) {
+    try {
+      const hashedPassword = await hashPassword(user.password);
+      user.password = hashedPassword;
       const createdUser = await prisma.user.create({
         data: {
           ...user,
@@ -16,24 +35,13 @@ export class AuthService {
           likedPosts: { create: [] },
         },
       });
-
-      const tokens = createTokens(createdUser.id);
-      return {
-        user: {
-          ...createdUser,
-          comments: [],
-          likedComments: [],
-          likedPosts: [],
-          posts: [],
-        },
-        ...tokens,
-      };
+      return createdUser;
     } catch (error: any) {
       throw handlePrismaError(error);
     }
   }
-  
-  async login(email: string, password: string): Promise<AuthPayload> {
+
+  async login(email: string, password: string) {
     try {
       const user = await prisma.user.findFirst({
         where: { email },
@@ -51,16 +59,33 @@ export class AuthService {
         data: { refreshToken },
       });
       return {
-        user: {
-          ...user,
-          comments: [],
-          likedComments: [],
-          likedPosts: [],
-          posts: [],
-        },
+        user,
         accessToken,
         refreshToken,
       };
+    } catch (error) {
+      throw handleAuthError(error);
+    }
+  }
+  async refreshToken(refreshToken: string) {
+    try {
+      const user = await prisma.user.findFirst({
+        where: { refreshToken: refreshToken },
+      });
+      console.log(user);
+      const payload = verifyRefreshToken(refreshToken);
+      if (!user || typeof payload === "string" || !payload.id) {
+        throw new Error("Invalid refresh token");
+      }
+      const { accessToken, refreshToken: newRefreshToken } = createTokens(
+        user.id
+      );
+      console.log({ accessToken, newRefreshToken });
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: newRefreshToken },
+      });
+      return { accessToken, refreshToken: newRefreshToken };
     } catch (error) {
       throw handleAuthError(error);
     }

@@ -17,10 +17,60 @@ export const userResolvers = {
   Mutation: {
     createUser: async (parent: any, args: { user: UserInput }) =>
       authService.createUser(args.user),
-    login: async (parent: any, args: { email: string; password: string }) =>
-      authService.login(args.email, args.password),
-    updateUser: async (parent: any, args: { id: number; user: UserInput }) =>
-      userService.updateUser(args.id, args.user),
+    login: async (
+      parent: any,
+      args: { email: string; password: string },
+      context: any
+    ) => {
+      const { user, accessToken, refreshToken } = await authService.login(
+        args.email,
+        args.password
+      );
+      console.log({refreshToken})
+      context.res.cookie("access-token", accessToken, {
+        httpOnly: true,
+        sameSite: "Strict",
+      });
+      context.res.cookie("refresh-token", refreshToken, {
+        httpOnly: true,
+        sameSite: "Strict",
+      });
+      return user;
+    },
+    logout: async (parent: any, args: { id: number }, context: any) => {
+      authService.logout(args.id);
+      context.res.clearCookie("access-token");
+      context.res.clearCookie("refresh-token");
+      return true;
+    },
+    refreshToken: async (
+      parent: any,
+      args: { refreshToken: string },
+      context: any
+    ) => {
+      const { accessToken, refreshToken } = await authService.refreshToken(
+        args.refreshToken
+      );
+      context.res.cookie("access-token", accessToken, {
+        httpOnly: true,
+        sameSite: "Strict",
+      });
+      context.res.cookie("refresh-token", refreshToken, {
+        httpOnly: true,
+        sameSite: "Strict",
+      });
+      return { accessToken };
+    },
+    updateUser: async (
+      parent: any,
+      args: { id: number; user: UserInput },
+      context: any
+    ) => {
+      if (!context.user) {
+        throw new Error("Unauthorized");
+      }
+      return userService.updateUser(args.id, args.user);
+    },
     deleteUser: async (parent: any, args: { id: number }) =>
       userService.deleteUser(args.id),
     toggleLikePost: async (

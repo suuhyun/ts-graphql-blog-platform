@@ -7,8 +7,10 @@ const Layout = (props: Props) => {
   return (
     <>
       <div className="flex gap-5 m-5">
-        <Link to="/">Home</Link>
-        <Link to="/about">About</Link>
+        <Link to="/" className="">Home</Link>
+        <Link to="/login" className="">Login</Link>
+        <Link to="/signup" className="">Sign Up</Link>
+        <Link to="/profile" className="">Profile</Link>
       </div>
       <Outlet />
     </>
