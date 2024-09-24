@@ -2,7 +2,8 @@ import { PostService } from "../../services/post.service";
 import { UserService } from "../../services/user/user.service";
 import { AuthService } from "../../services/user/auth.service";
 import { CommentService } from "../../services/comment.service";
-import { User, UserInput } from "../../generated/graphql";
+import { LoginUserInput, User, UserInput } from "../../generated/graphql";
+import { GraphQLError } from "graphql";
 
 const userService = UserService.getInstance();
 const authService = new AuthService();
@@ -11,22 +12,21 @@ const commentService = CommentService.getInstance();
 
 export const userResolvers = {
   Query: {
-    users: () => userService.getAllUsers(),
-    user: (_: any, args: { id: number }) => userService.getUserById(args.id),
+    users: async () => userService.getAllUsers(),
+    user: async (_: any, args: { id: number }) =>
+      userService.getUserById(args.id),
   },
   Mutation: {
     createUser: async (parent: any, args: { user: UserInput }) =>
       authService.createUser(args.user),
     login: async (
       parent: any,
-      args: { email: string; password: string },
+      args: { loginUser: LoginUserInput },
       context: any
     ) => {
       const { user, accessToken, refreshToken } = await authService.login(
-        args.email,
-        args.password
+        args.loginUser
       );
-      console.log({refreshToken})
       context.res.cookie("access-token", accessToken, {
         httpOnly: true,
         sameSite: "Strict",
@@ -37,39 +37,40 @@ export const userResolvers = {
       });
       return user;
     },
-    logout: async (parent: any, args: { id: number }, context: any) => {
-      authService.logout(args.id);
+    logout: async (parent: any, args: any, context: any) => {
+      await authService.logout(context.user.id);
       context.res.clearCookie("access-token");
       context.res.clearCookie("refresh-token");
       return true;
     },
-    refreshToken: async (
-      parent: any,
-      args: { refreshToken: string },
-      context: any
-    ) => {
-      const { accessToken, refreshToken } = await authService.refreshToken(
-        args.refreshToken
-      );
-      context.res.cookie("access-token", accessToken, {
+    refreshToken: async (parent: any, args: any, context: any) => {
+      const userRefreshToken = context.req.cookies["refresh-token"];
+      console.log({userRefreshToken})
+      const { newAccessToken, newRefreshToken, user } =
+        await authService.refreshToken(userRefreshToken);
+      context.res.cookie("access-token", newAccessToken, {
         httpOnly: true,
         sameSite: "Strict",
       });
-      context.res.cookie("refresh-token", refreshToken, {
+      context.res.cookie("refresh-token", newRefreshToken, {
         httpOnly: true,
         sameSite: "Strict",
       });
-      return { accessToken };
+      return user;
     },
     updateUser: async (
       parent: any,
-      args: { id: number; user: UserInput },
+      args: { user: UserInput },
       context: any
     ) => {
+      console.log({user: context.user})
       if (!context.user) {
-        throw new Error("Unauthorized");
+        throw new GraphQLError("Unauthorized", {
+          extensions: { code: "UNAUTHENTICATED" },
+        });
       }
-      return userService.updateUser(args.id, args.user);
+      console.log(context.user.id)
+      return userService.updateUser(context.user.id, args.user);
     },
     deleteUser: async (parent: any, args: { id: number }) =>
       userService.deleteUser(args.id),

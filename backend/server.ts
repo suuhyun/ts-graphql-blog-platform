@@ -50,6 +50,13 @@ const startServer = async () => {
         const user = token
           ? getUserFromToken(token, process.env.JWT_SECRET || "")
           : null;
+        // if (!user) {
+        //   const refreshToken = req.cookies["refresh-token"];
+        //   if (refreshToken) {
+        //     const newAccessToken = 
+        //   }
+        // }
+        
         return { user, req, res };
       },
     })

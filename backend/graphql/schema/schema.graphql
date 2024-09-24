@@ -16,14 +16,14 @@ type Mutation {
     deletePost(id: Int!): Post!
 
     createUser(user: UserInput!): User!
-    updateUser(id: Int!, user: UpdateUserInput!): User!
+    updateUser(user: UpdateUserInput!): User!
     deleteUser(id: Int!): User!
     toggleLikePost(userId: Int!, postId: Int!): User!
     toggleLikeComment(userId: Int!, commentId: Int!): User!
 
-    login(email: String!, password: String!): User!
-    logout(userId: Int!): Boolean!
-    refreshToken(refreshToken: String!): AuthPayload!
+    login(loginUser: LoginUserInput!): User!
+    logout: Boolean!
+    refreshToken: User!
 
     createComment(postId: Int!, userId: Int!, comment: CommentInput!): Comment!
     updateComment(id: Int!, comment: UpdateCommentInput!): Comment!
@@ -33,6 +33,10 @@ input UserInput {
     firstName: String!
     lastName: String
     username: String!
+    email: String!
+    password: String!
+}
+input LoginUserInput {
     email: String!
     password: String!
 }
@@ -55,9 +59,6 @@ input CommentInput {
 }
 input UpdateCommentInput {
     body: String
-}
-type AuthPayload {
-    accessToken: String!
 }
 type User {
     id: Int!

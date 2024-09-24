@@ -8,8 +8,9 @@ import {
   verifyAccessToken,
   verifyRefreshToken,
 } from "../../auth/auth";
-import { UserInput, AuthPayload } from "../../generated/graphql";
+import { UserInput } from "../../generated/graphql";
 import { access } from "fs";
+import { log } from "console";
 
 export class AuthService {
   async logout(id: number) {
@@ -41,15 +42,15 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string) {
+  async login(loginUser: { email: string; password: string }) {
     try {
       const user = await prisma.user.findFirst({
-        where: { email },
+        where: { email: loginUser.email },
       });
       if (!user) {
         throw new Error("User not found");
       }
-      const passwordMatch = comparePasswords(password, user.password);
+      const passwordMatch = comparePasswords(loginUser.password, user.password);
       if (!passwordMatch) {
         throw new Error("Invalid credentials");
       }
@@ -69,23 +70,22 @@ export class AuthService {
   }
   async refreshToken(refreshToken: string) {
     try {
+      console.log({refreshToken})
       const user = await prisma.user.findFirst({
         where: { refreshToken: refreshToken },
       });
-      console.log(user);
       const payload = verifyRefreshToken(refreshToken);
       if (!user || typeof payload === "string" || !payload.id) {
         throw new Error("Invalid refresh token");
       }
-      const { accessToken, refreshToken: newRefreshToken } = createTokens(
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = createTokens(
         user.id
       );
-      console.log({ accessToken, newRefreshToken });
       await prisma.user.update({
         where: { id: user.id },
         data: { refreshToken: newRefreshToken },
       });
-      return { accessToken, refreshToken: newRefreshToken };
+      return { newAccessToken, newRefreshToken, user };
     } catch (error) {
       throw handleAuthError(error);
     }

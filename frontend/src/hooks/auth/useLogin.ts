@@ -1,5 +1,5 @@
 import { useMutation } from "@apollo/client";
-import { LOGIN } from "../graphql/mutations/userMutaions";
+import { LOGIN } from "../../graphql/mutations/authMutaions";
 
 export const useLogin = (options: {
   onCompleted: () => void;
@@ -12,14 +12,14 @@ export const useLogin = (options: {
 
   const loginUser = async (userData: any) => {
     try {
+      console.log("useLogin userData", userData);
       const response = await login({
         variables: {
           email: userData.email,
           password: userData.password,
         },
       });
-      localStorage.setItem("accessToken", response.data.login.accessToken);
-      localStorage.setItem("refreshToken", response.data.login.refreshToken);
+      console.log("useLogin response", response);
       return response;
     } catch (err) {
       throw new Error("Login failed");

@@ -1,11 +1,11 @@
 import { useMutation, useQuery } from "@apollo/client";
 import React, { useState } from "react";
 import { Form, useNavigate } from "react-router-dom";
-import { CREATE_USER } from "../graphql/mutations/userMutaions";
+import { CREATE_USER } from "../graphql/mutations/authMutaions";
 import Spinner from "../components/Spinner";
 import Modal from "../components/Modal";
 import FormInput from "../components/FormInput";
-import { useSignup } from "../hooks/useSignup";
+import { useSignup } from "../hooks/auth/useSignup";
 
 type Props = {};
 

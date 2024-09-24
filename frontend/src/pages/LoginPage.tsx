@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import FormInput from "../components/FormInput";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
-import { useLogin } from "../hooks/useLogin";
+import { useLogin } from "../hooks/auth/useLogin";
 
 type Props = {};
 
@@ -27,6 +27,7 @@ const LoginPage = (props: Props) => {
     loginUser(formData);
   };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setErrorMsg("");
     const { name, value } = event.target;
     setFormData({ ...formData, [name]: value });
   };

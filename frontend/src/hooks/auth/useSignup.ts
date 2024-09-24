@@ -1,6 +1,6 @@
 // hooks/useSignup.ts
 import { useMutation } from "@apollo/client";
-import { CREATE_USER } from "../graphql/mutations/userMutaions";
+import { CREATE_USER } from "../../graphql/mutations/authMutaions";
 
 export const useSignup = (options: {
   onCompleted: () => void;
