@@ -38,7 +38,7 @@ export const userResolvers = {
       return user;
     },
     logout: async (parent: any, args: any, context: any) => {
-      await authService.logout(context.user.id);
+      await authService.logout(context?.user?.id);
       context.res.clearCookie("access-token");
       context.res.clearCookie("refresh-token");
       return true;

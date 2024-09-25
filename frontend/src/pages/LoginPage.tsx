@@ -1,28 +1,34 @@
 import React, { useState } from "react";
 import FormInput from "../components/FormInput";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import { useLogin } from "../hooks/auth/useLogin";
+import { useAuthStore } from "../stores/authStore";
 
 type Props = {};
 
 const LoginPage = (props: Props) => {
+  const { setCurrentUser } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
   const [errorMsg, setErrorMsg] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
+  const from = location.state?.from?.pathname || "/";
   const { loginUser, loading, error } = useLogin({
-    onCompleted: () => {
-      navigate("/");
+    onCompleted: (data) => {
+      setCurrentUser(data.login);
+      navigate(from, { replace: true });
     },
     onError: (err) => {
       console.error("Login error:", err);
       setErrorMsg(err.message);
     },
   });
-  const handleLogin = (event: React.FormEvent) => {
+  const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     loginUser(formData);
   };

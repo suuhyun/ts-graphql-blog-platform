@@ -15,8 +15,9 @@ export const useSignup = (options: {
     try {
       const response = await createUser({ variables: { user: userData } });
       return response;
-    } catch (err) {
-      throw new Error("Signup failed");
+    } catch (err: Error | any) {
+      console.log(err.message)
+      throw new Error(`Signup failed: ${err.message}`);
     }
   };
 
