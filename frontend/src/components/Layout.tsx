@@ -1,8 +1,8 @@
 import { useMutation } from "@apollo/client";
-import React from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { LOGOUT } from "../graphql/mutations/authMutaions";
 import { useAuthStore } from "../stores/authStore";
+import logo from "../assets/blog-logo.png";
 
 type Props = {};
 
@@ -22,9 +22,9 @@ const Layout = (props: Props) => {
   });
   return (
     <>
-      <div className="flex gap-5 m-5">
+      <div className="flex gap-5 m-5 items-center">
         <Link to="/" className="">
-          Home
+          <img className="h-8 w-15" src={logo} alt="" />
         </Link>
         {isAuthenticated ? (
           <button onClick={() => logout()}>Log out</button>
